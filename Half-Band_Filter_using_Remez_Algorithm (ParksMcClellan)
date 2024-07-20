@@ -1,0 +1,35 @@
+% Define specifications
+Fs_in = 100e3; % Input sampling frequency in Hz
+Fp = 20e3; % Passband frequency in Hz
+Fs = 30e3; % Stopband frequency in Hz
+Rp = 0.00004; % Passband ripple (linear scale)
+As = 110; % Stopband attenuation in dB
+
+% Normalize frequencies with respect to Nyquist frequency (Fs/2)
+F = [0 Fp Fs Fs_in/2] / (Fs_in/2); % Frequency bands
+A = [1 1 0 0]; % Desired amplitude (1 in passband, 0 in stopband)
+W = [1 Rp/(10^(-As/20))]; % Weights for passband and stopband
+
+% Define filter order (N)
+N = 24;
+
+% Design the filter using Remez (Parks-McClellan) algorithm
+hh = firpm(N-1, F, A, W); % N-1 because firpm specifies N-1 for PM design
+
+% Plot the magnitude response
+[fr_hh, f] = freqz(hh, 1, 1024, Fs_in);  %%#000324
+
+figure;
+f1=abs(fr_hh);
+disp("done!")
+plot(f/1e3, 20*log10(abs(fr_hh)), 'linewidth', 1);
+grid on;
+title('Magnitude Response of Half-Band FIR Filter');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+xlim([0 Fs_in/2 / 1e3]);
+ylim([-150 10]);
+
+% Display filter coefficients
+disp('Filter Coefficients:');
+disp(hh);
